@@ -64,7 +64,12 @@ export function stageAllChanges(cwd?: string): void {
 }
 
 export function createCommit(message: string, cwd?: string): string {
-  exec(`git commit -m ${JSON.stringify(message)}`, cwd);
+  execSync("git commit -F -", {
+    cwd,
+    input: message,
+    encoding: "utf-8",
+    stdio: ["pipe", "pipe", "pipe"],
+  });
   return exec("git rev-parse HEAD", cwd);
 }
 
