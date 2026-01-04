@@ -1,41 +1,54 @@
-# bun/cli
+# @truyman/dev
 
-A TypeScript CLI template using Bun.
+A CLI for common developer daily tasks.
 
-## Getting Started
-
-```bash
-npx giget gh:bentruyman/templates/bun/cli my-cli
-cd my-cli
-bun install
-```
-
-## Customize
-
-Update `package.json` with your project details:
-
-- `name` - Your CLI package name
-- `description` - What your CLI does
-- `bin` - Rename the command users will type
-
-## Scripts
-
-| Script              | Description                             |
-| ------------------- | --------------------------------------- |
-| `bun run build`     | Bundle for Node.js (outputs to `dist/`) |
-| `bun run format`    | Format code with oxfmt                  |
-| `bun run typecheck` | Type-check with TypeScript              |
-| `bun run release`   | Publish a new version with release-it   |
-
-## Development
-
-Run your CLI locally:
+## Installation
 
 ```bash
-bun run src/index.ts --help
+npm install -g @truyman/dev
 ```
 
-## Publishing
+## Commands
 
-1. Update `package.json` name and bin fields
-2. Run `bun run release` to build, tag, and publish to npm
+### `dev commit`
+
+Generate an AI-powered commit message for staged changes. Analyzes your recent commits to match your commit style.
+
+```bash
+# Generate message and open editor to review
+dev commit
+
+# Stage all modified files and commit
+dev commit -a
+
+# Provide context for the AI
+dev commit -m "This fixes the login timeout bug"
+
+# Preview without committing
+dev commit --dry-run
+
+# Skip editor, commit directly
+dev commit --no-edit
+```
+
+**Options:**
+
+| Flag            | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `-a, --all`     | Stage all modified/deleted files before committing |
+| `-m, --message` | Additional context for the AI                      |
+| `-n, --dry-run` | Print message without committing                   |
+| `--no-edit`     | Skip editor, commit directly                       |
+| `--provider`    | AI provider (`anthropic`, `openai`)                |
+| `--model`       | Specific model to use                              |
+
+## Configuration
+
+Set these environment variables:
+
+| Variable            | Description                | Default                     |
+| ------------------- | -------------------------- | --------------------------- |
+| `ANTHROPIC_API_KEY` | Anthropic API key          | Required if using Anthropic |
+| `DEV_AI_MODEL`      | Override the default model | Provider default            |
+| `DEV_AI_PROVIDER`   | AI provider to use         | `anthropic`                 |
+| `OPENAI_API_KEY`    | OpenAI API key             | Required if using OpenAI    |
