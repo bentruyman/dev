@@ -1,7 +1,7 @@
 import { command, run } from "@truyman/cli";
 
 import pkg from "../package.json";
-import { hello } from "./commands/index.ts";
+import { commit } from "./commands/index.ts";
 import { GlobalOptions } from "./options.ts";
 
 const dev = command({
@@ -9,7 +9,7 @@ const dev = command({
   description: pkg.description,
   version: pkg.version,
   options: GlobalOptions,
-  subcommands: [hello],
+  subcommands: [commit],
 });
 
 run(dev, process.argv.slice(2));

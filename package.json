@@ -19,7 +19,10 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1",
+    "@ai-sdk/openai": "^1",
     "@truyman/cli": "^1",
+    "ai": "^4",
     "kleur": "^4"
   },
   "devDependencies": {

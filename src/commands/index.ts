@@ -1,1 +1,1 @@
-export { hello } from "./hello.ts";
+export { commit } from "./commit.ts";
