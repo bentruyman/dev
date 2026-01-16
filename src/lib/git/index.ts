@@ -32,6 +32,50 @@ export function getStagedDiff(cwd?: string): string {
   return exec("git diff --cached", cwd);
 }
 
+export function getStagedDiffStats(cwd?: string): string {
+  return exec("git diff --cached --stat", cwd);
+}
+
+export function getStagedFileDiff(file: string, cwd?: string): string {
+  return exec(`git diff --cached -- "${file}"`, cwd);
+}
+
+export interface FileStats {
+  file: string;
+  status: string;
+  additions: number;
+  deletions: number;
+}
+
+export function getStagedFileStats(cwd?: string): FileStats[] {
+  const output = exec("git diff --cached --numstat", cwd);
+  if (!output) return [];
+
+  const statusOutput = exec("git diff --cached --name-status", cwd);
+  const statusMap = new Map<string, string>();
+  statusOutput.split("\n").forEach((line) => {
+    const [status = "", ...fileParts] = line.split("\t");
+    const file = fileParts.join("\t");
+    if (file) statusMap.set(file, status);
+  });
+
+  return output
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split("\t");
+      const additions = parts[0] === "-" ? 0 : parseInt(parts[0] || "0", 10);
+      const deletions = parts[1] === "-" ? 0 : parseInt(parts[1] || "0", 10);
+      const file = parts.slice(2).join("\t");
+      return {
+        file,
+        status: statusMap.get(file) || "M",
+        additions,
+        deletions,
+      };
+    });
+}
+
 export function getStagedFiles(cwd?: string): StagedFile[] {
   const output = exec("git diff --cached --name-status", cwd);
   if (!output) return [];

@@ -2,7 +2,23 @@
   "name": "@truyman/dev",
   "version": "1.0.0",
   "description": "A CLI for common developer daily tasks",
+  "keywords": [
+    "ai",
+    "cli",
+    "developer-tools",
+    "git",
+    "productivity"
+  ],
+  "homepage": "https://github.com/bentruyman/dev#readme",
+  "bugs": {
+    "url": "https://github.com/bentruyman/dev/issues"
+  },
   "license": "MIT",
+  "author": "Ben Truyman",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bentruyman/dev.git"
+  },
   "bin": {
     "dev": "./dist/index.js"
   },
@@ -10,11 +26,16 @@
     "dist"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --target node",
-    "format": "oxfmt",
+    "check": "bun run typecheck && bun run lint",
+    "format": "oxfmt && oxlint --fix",
+    "lint": "oxfmt --check && oxlint",
     "prepare": "husky",
-    "prepublishOnly": "bun run typecheck && bun test && bun run build",
+    "prepublishOnly": "bun run check && bun run build",
     "release": "release-it",
     "typecheck": "tsc"
   },
@@ -42,6 +63,6 @@
     ]
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   }
 }

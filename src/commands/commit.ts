@@ -1,19 +1,23 @@
 import { command } from "@truyman/cli";
 import kleur from "kleur";
 
-import { generateCommitMessage } from "../lib/ai/index.ts";
+import { generateCommitMessage, generateCommitMessageAgentic } from "../lib/ai/index.ts";
 import { openInEditor } from "../lib/editor.ts";
 import {
   createCommit,
   getCurrentBranch,
   getRecentCommits,
   getStagedDiff,
+  getStagedFileDiff,
+  getStagedFileStats,
   getStagedFiles,
   isGitRepository,
   stageAllChanges,
 } from "../lib/git/index.ts";
 import { analyzeCommitStyle, styleToPromptGuidelines } from "../lib/git/style.ts";
 import { GlobalOptions } from "../options.ts";
+
+const MAX_SIMPLE_DIFF_SIZE = 30_000;
 
 export const commit = command({
   name: "commit",
@@ -87,18 +91,36 @@ export const commit = command({
       console.log(kleur.dim(`  - Average length: ${style.averageSubjectLength} chars`));
     }
 
+    const usesAgenticApproach = diff.length > MAX_SIMPLE_DIFF_SIZE;
+
+    if (usesAgenticApproach && options.verbose) {
+      console.log(kleur.dim(`Large diff detected (${diff.length} chars). Using agentic analysis.`));
+    }
+
     console.log(kleur.cyan("Generating commit message..."));
 
     let generatedMessage: string;
     try {
-      generatedMessage = await generateCommitMessage({
-        provider: options.provider,
-        model: options.model,
-        diff,
-        stagedFiles,
-        styleGuidelines,
-        userContext: options.message,
-      });
+      if (usesAgenticApproach) {
+        const fileStats = getStagedFileStats(cwd);
+        generatedMessage = await generateCommitMessageAgentic({
+          provider: options.provider,
+          model: options.model,
+          fileStats,
+          styleGuidelines,
+          userContext: options.message,
+          getFileDiff: (file) => getStagedFileDiff(file, cwd),
+        });
+      } else {
+        generatedMessage = await generateCommitMessage({
+          provider: options.provider,
+          model: options.model,
+          diff,
+          stagedFiles,
+          styleGuidelines,
+          userContext: options.message,
+        });
+      }
     } catch (error) {
       if (error instanceof Error) {
         console.error(kleur.red(`AI error: ${error.message}`));

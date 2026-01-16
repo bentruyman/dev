@@ -52,6 +52,83 @@ export function extractCommitMessage(aiResponse: string): string {
     .trim();
 }
 
+// Conventional commit types that indicate the start of a commit message
+const COMMIT_TYPES = [
+  "feat",
+  "fix",
+  "docs",
+  "style",
+  "refactor",
+  "perf",
+  "test",
+  "build",
+  "ci",
+  "chore",
+  "revert",
+];
+
+const COMMIT_TYPE_PATTERN = new RegExp(`^(${COMMIT_TYPES.join("|")})(\\([^)]+\\))?!?:\\s*.+`, "i");
+
+// Common imperative verbs that start commit messages
+const IMPERATIVE_VERBS = [
+  "Add",
+  "Remove",
+  "Update",
+  "Fix",
+  "Change",
+  "Create",
+  "Delete",
+  "Implement",
+  "Improve",
+  "Refactor",
+  "Move",
+  "Rename",
+  "Merge",
+  "Release",
+  "Bump",
+  "Initial",
+];
+
+const IMPERATIVE_PATTERN = new RegExp(`^(${IMPERATIVE_VERBS.join("|")})\\s+.+`, "i");
+
+export function extractCommitMessageAgentic(aiResponse: string): string {
+  const lines = aiResponse.split("\n");
+
+  // Find the line that looks like a commit message subject
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    if (rawLine === undefined) continue;
+    const line = rawLine.trim();
+
+    // Skip empty lines
+    if (!line) continue;
+
+    // Check for conventional commit format
+    if (COMMIT_TYPE_PATTERN.test(line)) {
+      // Return from this line to the end, cleaned up
+      return lines
+        .slice(i)
+        .join("\n")
+        .replace(/^```[\w]*\n?/gm, "")
+        .replace(/```$/gm, "")
+        .trim();
+    }
+
+    // Check for imperative verb pattern (common in non-conventional commits)
+    if (IMPERATIVE_PATTERN.test(line) && line.length <= 100) {
+      return lines
+        .slice(i)
+        .join("\n")
+        .replace(/^```[\w]*\n?/gm, "")
+        .replace(/```$/gm, "")
+        .trim();
+    }
+  }
+
+  // Fallback to basic extraction if no pattern found
+  return extractCommitMessage(aiResponse);
+}
+
 export interface PRPromptContext {
   baseBranch: string;
   headBranch: string;

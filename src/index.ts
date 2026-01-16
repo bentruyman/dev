@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { command, run } from "@truyman/cli";
 
 import pkg from "../package.json";
