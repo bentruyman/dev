@@ -1,5 +1,6 @@
 import { command } from "@truyman/cli";
 import kleur from "kleur";
+import ora from "ora";
 
 import { generateCommitMessage, generateCommitMessageAgentic } from "../lib/ai/index.ts";
 import { openInEditor } from "../lib/editor.ts";
@@ -97,7 +98,7 @@ export const commit = command({
       console.log(kleur.dim(`Large diff detected (${diff.length} chars). Using agentic analysis.`));
     }
 
-    console.log(kleur.cyan("Generating commit message..."));
+    const spinner = ora("Generating commit message...").start();
 
     let generatedMessage: string;
     try {
@@ -121,7 +122,9 @@ export const commit = command({
           userContext: options.message,
         });
       }
+      spinner.stop();
     } catch (error) {
+      spinner.stop();
       if (error instanceof Error) {
         console.error(kleur.red(`AI error: ${error.message}`));
       } else {
